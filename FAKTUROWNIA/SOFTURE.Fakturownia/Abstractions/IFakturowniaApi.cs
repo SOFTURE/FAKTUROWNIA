@@ -7,7 +7,7 @@ namespace SOFTURE.Fakturownia.Abstractions;
 public interface IFakturowniaApi
 {
      [Get("/invoices.json")]
-     Task<IReadOnlyCollection<InvoiceDetails>> GetInvoicesAsync(
+     Task<ApiResponse<IReadOnlyCollection<InvoiceDetails>>> GetInvoicesAsync(
          [AliasAs("period")] Period period, 
          [AliasAs("client_id")] int clientId);
 }
