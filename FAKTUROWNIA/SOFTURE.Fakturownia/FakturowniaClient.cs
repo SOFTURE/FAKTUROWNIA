@@ -9,7 +9,7 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
 {
     public async Task<Result<CurrentMonthStatement>> GetCurrentMonthStatement(int clientId)
     {
-        var invoices = await fakturowniaApi.GetInvoicesAsync(Period.LastMonth, clientId);
+        var invoices = await fakturowniaApi.GetInvoicesAsync(Period.ThisMonth, clientId);
 
         if (invoices.Count == 0)
             return Result.Failure<CurrentMonthStatement>($"Missing invoices for client with id: {clientId}");
