@@ -81,7 +81,7 @@ public sealed class InvoiceDetails
 
     [JsonPropertyName("created_at")] public DateTime CreatedAt { get; set; }
 
-    [JsonPropertyName("updated_at")] public DateTime UpdatedAt { get; set; }
+    [JsonPropertyName("updated_at")] public DateTime? UpdatedAt { get; set; }
 
     [JsonPropertyName("token")] public string? Token { get; set; }
 
@@ -99,7 +99,7 @@ public sealed class InvoiceDetails
 
     [JsonPropertyName("pattern_nr")] public object? PatternNr { get; set; }
 
-    [JsonPropertyName("pattern_nr_m")] public int PatternNrM { get; set; }
+    [JsonPropertyName("pattern_nr_m")] public int? PatternNrM { get; set; }
 
     [JsonPropertyName("pattern_nr_d")] public object? PatternNrD { get; set; }
 
@@ -117,7 +117,7 @@ public sealed class InvoiceDetails
 
     [JsonPropertyName("price_tax")] public string? PriceTax { get; set; }
 
-    [JsonPropertyName("department_id")] public int DepartmentId { get; set; }
+    [JsonPropertyName("department_id")] public int? DepartmentId { get; set; }
 
     [JsonPropertyName("correction")] public object? Correction { get; set; }
 
@@ -125,7 +125,7 @@ public sealed class InvoiceDetails
 
     [JsonPropertyName("additional_info_desc")] public string? AdditionalInfoDesc { get; set; }
 
-    [JsonPropertyName("additional_info")] public bool AdditionalInfo { get; set; }
+    [JsonPropertyName("additional_info")] public bool? AdditionalInfo { get; set; }
 
     [JsonPropertyName("product_cache")] public string? ProductCache { get; set; }
 
@@ -137,7 +137,7 @@ public sealed class InvoiceDetails
 
     [JsonPropertyName("discount")] public string? Discount { get; set; }
 
-    [JsonPropertyName("show_discount")] public bool ShowDiscount { get; set; }
+    [JsonPropertyName("show_discount")] public bool? ShowDiscount { get; set; }
 
     [JsonPropertyName("sent_time")] public object? SentTime { get; set; }
 
@@ -151,15 +151,15 @@ public sealed class InvoiceDetails
 
     [JsonPropertyName("paid_date")] public string? PaidDate { get; set; }
 
-    [JsonPropertyName("product_id")] public int ProductId { get; set; }
+    [JsonPropertyName("product_id")] public int? ProductId { get; set; }
 
-    [JsonPropertyName("issue_year")] public int IssueYear { get; set; }
+    [JsonPropertyName("issue_year")] public int? IssueYear { get; set; }
 
     [JsonPropertyName("internal_note")] public string? InternalNote { get; set; }
 
     [JsonPropertyName("invoice_id")] public object? InvoiceId { get; set; }
 
-    [JsonPropertyName("invoice_template_id")] public int InvoiceTemplateId { get; set; }
+    [JsonPropertyName("invoice_template_id")] public int? InvoiceTemplateId { get; set; }
 
     [JsonPropertyName("description_long")] public string? DescriptionLong { get; set; }
 
@@ -177,9 +177,9 @@ public sealed class InvoiceDetails
 
     [JsonPropertyName("discount_kind")] public string? DiscountKind { get; set; }
 
-    [JsonPropertyName("income")] public bool Income { get; set; }
+    [JsonPropertyName("income")] public bool? Income { get; set; }
 
-    [JsonPropertyName("from_api")] public bool FromApi { get; set; }
+    [JsonPropertyName("from_api")] public bool? FromApi { get; set; }
 
     [JsonPropertyName("category_id")] public object? CategoryId { get; set; }
 
@@ -205,13 +205,13 @@ public sealed class InvoiceDetails
 
     [JsonPropertyName("exchange_note")] public string? ExchangeNote { get; set; }
 
-    [JsonPropertyName("buyer_company")] public bool BuyerCompany { get; set; }
+    [JsonPropertyName("buyer_company")] public bool? BuyerCompany { get; set; }
 
-    [JsonPropertyName("show_attachments")] public bool ShowAttachments { get; set; }
+    [JsonPropertyName("show_attachments")] public bool? ShowAttachments { get; set; }
 
     [JsonPropertyName("exchange_currency_rate")] public object? ExchangeCurrencyRate { get; set; }
 
-    [JsonPropertyName("has_attachments")] public bool HasAttachments { get; set; }
+    [JsonPropertyName("has_attachments")] public bool? HasAttachments { get; set; }
 
     [JsonPropertyName("exchange_date")] public object? ExchangeDate { get; set; }
 
