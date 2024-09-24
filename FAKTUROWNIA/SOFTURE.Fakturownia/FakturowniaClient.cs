@@ -27,16 +27,15 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
             return Result.Failure<CurrentMonthStatement>($"Missing proforma invoice for client with id: {clientId}");
 
         var statement = CurrentMonthStatement.Create(
-            proFormaInvoice.Id,
-            proFormaInvoice.PriceGross!,
-            proFormaInvoice.CreatedAt
+            proFormaInvoice.PriceNet!,
+            new Invoice(proFormaInvoice.Id, proFormaInvoice.CreatedAt)
         );
 
         var invoice = invoices.SingleOrDefault(i => i.Kind == DocumentKind.Vat &&
-                                                    i.FromInvoiceId == proFormaInvoice?.Id);
+                                                    i.FromInvoiceId == proFormaInvoice.Id);
         
         if (invoice != null)
-            statement.Paid(invoice.Id);
+            statement.Paid(new Invoice(invoice.Id, invoice.CreatedAt));
 
         return Result.Success(statement);
     }
