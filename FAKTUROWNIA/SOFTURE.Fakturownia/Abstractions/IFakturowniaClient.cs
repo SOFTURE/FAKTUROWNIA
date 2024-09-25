@@ -6,5 +6,6 @@ namespace SOFTURE.Fakturownia.Abstractions;
 
 public interface IFakturowniaClient
 {
-    Task<Result<CurrentMonthStatement>> GetCurrentMonthStatement(int clientId);
+    Task<Result<MonthlyStatement>> GetCurrentMonthStatement(int clientId);
+    Task<Result<MonthlyStatement>> GetMonthlyStatement(int clientId, int month, int year);
 }

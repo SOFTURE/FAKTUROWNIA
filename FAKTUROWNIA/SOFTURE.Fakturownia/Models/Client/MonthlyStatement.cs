@@ -1,8 +1,8 @@
 namespace SOFTURE.Fakturownia.Models.Client;
 
-public sealed class CurrentMonthStatement
+public sealed class MonthlyStatement
 {
-    private CurrentMonthStatement(decimal priceNet, Invoice proFormaInvoice)
+    private MonthlyStatement(decimal priceNet, Invoice proFormaInvoice)
     {
         PriceNet = priceNet;
         ProFormaInvoice = proFormaInvoice;
@@ -15,9 +15,9 @@ public sealed class CurrentMonthStatement
     
     public bool IsPaid => Invoice != null;
     
-    public static CurrentMonthStatement Create(string priceNet, Invoice proFormaInvoice)
+    public static MonthlyStatement Create(string priceNet, Invoice proFormaInvoice)
     {
-        return new CurrentMonthStatement(decimal.Parse(priceNet), proFormaInvoice);
+        return new MonthlyStatement(decimal.Parse(priceNet), proFormaInvoice);
     }
     
     public void Paid(Invoice invoice)
