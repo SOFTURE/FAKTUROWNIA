@@ -27,15 +27,14 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
             return Result.Failure<MonthlyStatement>($"Missing proforma invoice for client with id: {clientId}");
 
         var statement = MonthlyStatement.Create(
-            proFormaInvoice.PriceNet!,
-            new Invoice(proFormaInvoice.Id, proFormaInvoice.CreatedAt)
+            new Invoice(proFormaInvoice.Id, proFormaInvoice.CreatedAt, proFormaInvoice.PriceNet)
         );
 
         var invoice = invoices.SingleOrDefault(i => i.Kind == DocumentKind.Vat &&
                                                     i.FromInvoiceId == proFormaInvoice.Id);
         
         if (invoice != null)
-            statement.Paid(new Invoice(invoice.Id, invoice.CreatedAt));
+            statement.Paid(new Invoice(invoice.Id, invoice.CreatedAt, invoice.PriceNet));
 
         return Result.Success(statement);
     }
@@ -64,16 +63,37 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
             return Result.Failure<MonthlyStatement>($"Missing proforma invoice for client with id: {clientId}");
 
         var statement = MonthlyStatement.Create(
-            proFormaInvoice.PriceNet!,
-            new Invoice(proFormaInvoice.Id, proFormaInvoice.CreatedAt)
+            new Invoice(proFormaInvoice.Id, proFormaInvoice.CreatedAt, proFormaInvoice.PriceNet)
         );
 
         var invoice = allInvoice.SingleOrDefault(i => i.Kind == DocumentKind.Vat &&
                                                       i.FromInvoiceId == proFormaInvoice.Id);
         
         if (invoice != null)
-            statement.Paid(new Invoice(invoice.Id, invoice.CreatedAt));
+            statement.Paid(new Invoice(invoice.Id, invoice.CreatedAt, invoice.PriceNet));
 
         return Result.Success(statement);
+    }
+    
+    public async Task<Result<Invoice>> GetInvoice(int invoiceId, DocumentKind kind)
+    {
+        var response = await fakturowniaApi.GetInvoiceAsync(invoiceId);
+
+        if (!response.IsSuccessStatusCode)
+            return Result.Failure<Invoice>(
+                $"Failed to get invoice with id: {invoiceId} - {response.Error.Content}"
+            );
+
+        if(response.Content == null)
+            return Result.Failure<Invoice>($"Missing invoice with id: {invoiceId}");
+        
+        var invoice = response.Content;
+        
+        if (invoice.Kind != kind)
+            return Result.Failure<Invoice>(
+                $"Invalid invoice kind. Expected: {kind}, got: {invoice.Kind}"
+            );
+
+        return Result.Success(new Invoice(invoice.Id, invoice.CreatedAt, invoice.PriceNet));
     }
 }

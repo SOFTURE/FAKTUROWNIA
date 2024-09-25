@@ -10,4 +10,7 @@ public interface IFakturowniaApi
      Task<ApiResponse<IReadOnlyCollection<InvoiceDetails>>> GetInvoicesAsync(
          [AliasAs("period")] Period period, 
          [AliasAs("client_id")] int clientId);
+
+     [Get("/invoices/{invoiceId}.json")]
+     Task<ApiResponse<InvoiceDetails>> GetInvoiceAsync(int invoiceId);
 }

@@ -29,7 +29,7 @@ public sealed class InvoiceDetails
 
     [JsonPropertyName("payment_type")] public string? PaymentType { get; set; }
 
-    [JsonPropertyName("price_net")] public string? PriceNet { get; set; }
+    [JsonPropertyName("price_net")] public string PriceNet { get; set; } = null!;
 
     [JsonPropertyName("price_gross")] public string? PriceGross { get; set; }
 
