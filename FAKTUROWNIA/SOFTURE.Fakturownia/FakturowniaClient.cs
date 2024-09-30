@@ -96,4 +96,28 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
 
         return Result.Success(new Invoice(invoice.Id, invoice.CreatedAt, invoice.PriceNet));
     }
+
+    public async Task<Result<IReadOnlyList<int>>> GetCurrentlyPaidInvoiceIds(int clientId, List<int> unPayedProInvoiceIds)
+    {
+        var response = await fakturowniaApi.GetInvoicesAsync(Period.All, clientId);
+
+        if (!response.IsSuccessStatusCode)
+            return Result.Failure<IReadOnlyList<int>>(
+                $"Failed to get invoices for client with id: {clientId} - {response.Error.Content}"
+            );
+
+        var payedInvoice = response.Content
+            .Where(i => i.Kind == DocumentKind.Vat)
+            .ToList();
+
+        if (payedInvoice.Count == 0)
+            return Result.Failure<IReadOnlyList<int>>($"Missing payed invoices for client with id: {clientId}");
+
+        var currentlyPayedProInvoiceIds = payedInvoice
+            .Where(i => unPayedProInvoiceIds.Contains(i.FromInvoiceId!.Value))
+            .Select(i => i.FromInvoiceId!.Value)
+            .ToList();
+        
+        return Result.Success<IReadOnlyList<int>>(currentlyPayedProInvoiceIds);
+    }
 }

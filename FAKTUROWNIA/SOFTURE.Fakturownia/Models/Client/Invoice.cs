@@ -19,5 +19,6 @@ public sealed class Invoice : ValueObject
     {
         yield return Identifier;
         yield return CreatedAt;
+        yield return PriceNet;
     }
 }
