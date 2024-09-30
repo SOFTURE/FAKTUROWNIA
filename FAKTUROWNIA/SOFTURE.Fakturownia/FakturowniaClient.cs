@@ -130,18 +130,62 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
 
             var invoice = payedInvoices.SingleOrDefault(i => i.FromInvoiceId == proFormaInvoice.Id);
 
-            if (invoice == null) 
+            if (invoice == null)
                 continue;
-            
+
             var statement = MonthlyStatement.Create(
                 new Invoice(proFormaInvoice.Id, proFormaInvoice.CreatedAt, proFormaInvoice.PriceNet)
             );
-            
+
             statement.Paid(new Invoice(invoice.Id, invoice.CreatedAt, invoice.PriceNet));
 
             currentlyPayedStatements.Add(statement);
         }
 
         return Result.Success<IReadOnlyList<MonthlyStatement>>(currentlyPayedStatements);
+    }
+
+    public async Task<Result<IReadOnlyList<MonthlyStatement>>> GetAllStatements(int clientId)
+    {
+        var response = await fakturowniaApi.GetInvoicesAsync(Period.All, clientId);
+
+        if (!response.IsSuccessStatusCode)
+            return Result.Failure<IReadOnlyList<MonthlyStatement>>(
+                $"Failed to get invoices for client with id: {clientId} - {response.Error.Content}"
+            );
+
+        var allInvoice = response.Content;
+
+        var proFormaInvoices = allInvoice
+            .Where(i => i.Kind == DocumentKind.Proforma)
+            .OrderBy(i => i.CreatedAt)
+            .ToList();
+
+        if (allInvoice.Count == 0)
+            return Result.Failure<IReadOnlyList<MonthlyStatement>>(
+                $"Missing payed invoices for client with id: {clientId}");
+
+        var allStatements = new List<MonthlyStatement>();
+
+        foreach (var proFormaInvoice in proFormaInvoices)
+        {
+            var invoice = allInvoice.SingleOrDefault(i => i.FromInvoiceId == proFormaInvoice.Id &&
+                                                          i.Kind == DocumentKind.Vat);
+            var statement = MonthlyStatement.Create(
+                new Invoice(proFormaInvoice.Id, proFormaInvoice.CreatedAt, proFormaInvoice.PriceNet)
+            );
+
+            if (invoice == null)
+            {
+                allStatements.Add(statement);
+                break;
+            }
+
+            statement.Paid(new Invoice(invoice.Id, invoice.CreatedAt, invoice.PriceNet));
+
+            allStatements.Add(statement);
+        }
+
+        return Result.Success<IReadOnlyList<MonthlyStatement>>(allStatements);
     }
 }
