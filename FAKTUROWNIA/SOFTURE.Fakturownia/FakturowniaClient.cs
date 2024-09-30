@@ -178,7 +178,7 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
             if (invoice == null)
             {
                 allStatements.Add(statement);
-                break;
+                continue;
             }
 
             statement.Paid(new Invoice(invoice.Id, invoice.CreatedAt, invoice.PriceNet));

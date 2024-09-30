@@ -23,5 +23,6 @@ public sealed class Playground(IFakturowniaClient fakturowniaClient)
         );
         
         var allStatements = await fakturowniaClient.GetAllStatements(clientId: 135057762);
+        var allStatements = await fakturowniaClient.GetAllStatements(clientId: 134978513);
     }
 }
