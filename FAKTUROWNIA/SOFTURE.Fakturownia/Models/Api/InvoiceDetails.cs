@@ -113,7 +113,7 @@ public sealed class InvoiceDetails
 
     [JsonPropertyName("lang")] public string? Lang { get; set; }
 
-    [JsonPropertyName("issue_date")] public string? IssueDate { get; set; }
+    [JsonPropertyName("issue_date")] public DateTime IssueDate { get; set; }
 
     [JsonPropertyName("price_tax")] public string? PriceTax { get; set; }
 

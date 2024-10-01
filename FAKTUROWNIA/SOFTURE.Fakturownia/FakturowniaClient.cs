@@ -27,14 +27,14 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
             return Result.Failure<MonthlyStatement>($"Missing proforma invoice for client with id: {clientId}");
 
         var statement = MonthlyStatement.Create(
-            new Invoice(proFormaInvoice.Id, proFormaInvoice.CreatedAt, proFormaInvoice.PriceNet)
+            new Invoice(proFormaInvoice.Id, proFormaInvoice.IssueDate, proFormaInvoice.PriceNet)
         );
 
         var invoice = invoices.SingleOrDefault(i => i.Kind == DocumentKind.Vat &&
                                                     i.FromInvoiceId == proFormaInvoice.Id);
 
         if (invoice != null)
-            statement.Paid(new Invoice(invoice.Id, invoice.CreatedAt, invoice.PriceNet));
+            statement.Paid(new Invoice(invoice.Id, invoice.IssueDate, invoice.PriceNet));
 
         return Result.Success(statement);
     }
@@ -51,7 +51,7 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
         var allInvoice = response.Content;
 
         var invoices = allInvoice
-            .Where(i => i.CreatedAt.Month == month && i.CreatedAt.Year == year)
+            .Where(i => i.IssueDate.Month == month && i.IssueDate.Year == year)
             .ToList();
 
         if (invoices.Count == 0)
@@ -63,14 +63,14 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
             return Result.Failure<MonthlyStatement>($"Missing proforma invoice for client with id: {clientId}");
 
         var statement = MonthlyStatement.Create(
-            new Invoice(proFormaInvoice.Id, proFormaInvoice.CreatedAt, proFormaInvoice.PriceNet)
+            new Invoice(proFormaInvoice.Id, proFormaInvoice.IssueDate, proFormaInvoice.PriceNet)
         );
 
         var invoice = allInvoice.SingleOrDefault(i => i.Kind == DocumentKind.Vat &&
                                                       i.FromInvoiceId == proFormaInvoice.Id);
 
         if (invoice != null)
-            statement.Paid(new Invoice(invoice.Id, invoice.CreatedAt, invoice.PriceNet));
+            statement.Paid(new Invoice(invoice.Id, invoice.IssueDate, invoice.PriceNet));
 
         return Result.Success(statement);
     }
@@ -94,7 +94,7 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
                 $"Invalid invoice kind. Expected: {kind}, got: {invoice.Kind}"
             );
 
-        return Result.Success(new Invoice(invoice.Id, invoice.CreatedAt, invoice.PriceNet));
+        return Result.Success(new Invoice(invoice.Id, invoice.IssueDate, invoice.PriceNet));
     }
 
     public async Task<Result<IReadOnlyList<MonthlyStatement>>> GetCurrentlyPaidInvoices(
@@ -134,10 +134,10 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
                 continue;
 
             var statement = MonthlyStatement.Create(
-                new Invoice(proFormaInvoice.Id, proFormaInvoice.CreatedAt, proFormaInvoice.PriceNet)
+                new Invoice(proFormaInvoice.Id, proFormaInvoice.IssueDate, proFormaInvoice.PriceNet)
             );
 
-            statement.Paid(new Invoice(invoice.Id, invoice.CreatedAt, invoice.PriceNet));
+            statement.Paid(new Invoice(invoice.Id, invoice.IssueDate, invoice.PriceNet));
 
             currentlyPayedStatements.Add(statement);
         }
@@ -158,7 +158,7 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
 
         var proFormaInvoices = allInvoice
             .Where(i => i.Kind == DocumentKind.Proforma)
-            .OrderBy(i => i.CreatedAt)
+            .OrderBy(i => i.IssueDate)
             .ToList();
 
         if (allInvoice.Count == 0)
@@ -172,7 +172,7 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
             var invoice = allInvoice.SingleOrDefault(i => i.FromInvoiceId == proFormaInvoice.Id &&
                                                           i.Kind == DocumentKind.Vat);
             var statement = MonthlyStatement.Create(
-                new Invoice(proFormaInvoice.Id, proFormaInvoice.CreatedAt, proFormaInvoice.PriceNet)
+                new Invoice(proFormaInvoice.Id, proFormaInvoice.IssueDate, proFormaInvoice.PriceNet)
             );
 
             if (invoice == null)
@@ -181,7 +181,7 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
                 continue;
             }
 
-            statement.Paid(new Invoice(invoice.Id, invoice.CreatedAt, invoice.PriceNet));
+            statement.Paid(new Invoice(invoice.Id, invoice.IssueDate, invoice.PriceNet));
 
             allStatements.Add(statement);
         }

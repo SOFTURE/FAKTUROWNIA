@@ -22,7 +22,6 @@ public sealed class Playground(IFakturowniaClient fakturowniaClient)
             unPayedProInvoiceIds: [294812716, 315738315]
         );
         
-        var allStatements = await fakturowniaClient.GetAllStatements(clientId: 135057762);
         var allStatements = await fakturowniaClient.GetAllStatements(clientId: 134978513);
     }
 }

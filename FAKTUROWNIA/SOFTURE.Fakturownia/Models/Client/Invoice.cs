@@ -4,21 +4,21 @@ namespace SOFTURE.Fakturownia.Models.Client;
 
 public sealed class Invoice : ValueObject
 {
-    public Invoice(int identifier, DateTime createdAt, string priceNet)
+    public Invoice(int identifier, DateTime issueDate, string priceNet)
     {
         Identifier = identifier;
-        CreatedAt = createdAt;
+        IssueDate = issueDate;
         PriceNet = decimal.Parse(priceNet);
     }
     
     public int Identifier { get; }
-    public DateTime CreatedAt { get; }
+    public DateTime IssueDate { get; }
     public decimal PriceNet { get;  }
     
     protected override IEnumerable<IComparable> GetEqualityComponents()
     {
         yield return Identifier;
-        yield return CreatedAt;
+        yield return IssueDate;
         yield return PriceNet;
     }
 }
