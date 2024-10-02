@@ -1,6 +1,6 @@
 using CSharpFunctionalExtensions;
+using SOFTURE.Fakturownia.Models.Api.Enums;
 using SOFTURE.Fakturownia.Models.Client;
-using SOFTURE.Fakturownia.Models.Enums;
 
 namespace SOFTURE.Fakturownia.Abstractions;
 

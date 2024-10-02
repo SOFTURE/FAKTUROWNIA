@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace SOFTURE.Fakturownia.Models.Enums;
+namespace SOFTURE.Fakturownia.Models.Api.Enums;
 
 public enum DocumentKind
 {
@@ -41,5 +41,8 @@ public enum DocumentKind
     Final,
     
     [EnumMember(Value = "estimate")]
-    Estimate
+    Estimate,
+    
+    [EnumMember(Value = "accounting_note")]
+    AccountingNote
 }

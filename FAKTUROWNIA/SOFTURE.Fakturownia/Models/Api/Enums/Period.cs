@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace SOFTURE.Fakturownia.Models.Enums;
+namespace SOFTURE.Fakturownia.Models.Api.Enums;
 
 public enum Period
 {

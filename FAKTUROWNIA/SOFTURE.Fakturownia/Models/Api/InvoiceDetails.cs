@@ -1,8 +1,7 @@
-
 using System.Text.Json.Serialization;
-using SOFTURE.Fakturownia.Models.Enums;
+using SOFTURE.Fakturownia.Models.Api.Enums;
 
-namespace SOFTURE.Fakturownia.Models;
+namespace SOFTURE.Fakturownia.Models.Api;
 
 public sealed class CalculatingStrategy
 {

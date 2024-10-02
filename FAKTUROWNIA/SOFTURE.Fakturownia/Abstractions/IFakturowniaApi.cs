@@ -1,6 +1,6 @@
 using Refit;
-using SOFTURE.Fakturownia.Models;
-using SOFTURE.Fakturownia.Models.Enums;
+using SOFTURE.Fakturownia.Models.Api;
+using SOFTURE.Fakturownia.Models.Api.Enums;
 
 namespace SOFTURE.Fakturownia.Abstractions;
 

@@ -1,5 +1,5 @@
 using SOFTURE.Fakturownia.Abstractions;
-using SOFTURE.Fakturownia.Models.Enums;
+using SOFTURE.Fakturownia.Models.Api.Enums;
 
 namespace SOFTURE.Fakturownia.Playground;
 
@@ -22,6 +22,6 @@ public sealed class Playground(IFakturowniaClient fakturowniaClient)
             unPayedProInvoiceIds: [294812716, 315738315]
         );
         
-        var allStatements = await fakturowniaClient.GetAllStatements(clientId: 134978513);
+        var allStatements = await fakturowniaClient.GetAllStatements(clientId: 138928495);
     }
 }

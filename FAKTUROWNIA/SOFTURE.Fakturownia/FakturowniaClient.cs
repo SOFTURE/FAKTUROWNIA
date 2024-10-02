@@ -1,7 +1,7 @@
 using CSharpFunctionalExtensions;
 using SOFTURE.Fakturownia.Abstractions;
+using SOFTURE.Fakturownia.Models.Api.Enums;
 using SOFTURE.Fakturownia.Models.Client;
-using SOFTURE.Fakturownia.Models.Enums;
 
 namespace SOFTURE.Fakturownia;
 
@@ -156,6 +156,9 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
 
         var allInvoice = response.Content;
 
+        if (allInvoice.Count == 0)
+            return Result.Failure<IReadOnlyList<MonthlyStatement>>($"Missing invoices for client with id: {clientId}");
+
         var proFormaInvoices = allInvoice
             .Where(i => i.Kind == DocumentKind.Proforma)
             .OrderBy(i => i.IssueDate)
@@ -169,11 +172,25 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
 
         foreach (var proFormaInvoice in proFormaInvoices)
         {
-            var invoice = allInvoice.SingleOrDefault(i => i.FromInvoiceId == proFormaInvoice.Id &&
-                                                          i.Kind == DocumentKind.Vat);
             var statement = MonthlyStatement.Create(
                 new Invoice(proFormaInvoice.Id, proFormaInvoice.IssueDate, proFormaInvoice.PriceNet)
             );
+
+            var invoiceCount = allInvoice.Count(i => i.FromInvoiceId == proFormaInvoice.Id &&
+                                                     i.Kind == DocumentKind.Vat);
+
+            if (invoiceCount != 1)
+            {
+                allStatements.Add(statement);
+
+                Console.WriteLine(
+                    $"ClientId: {clientId} - Multiple invoices for PRO-FV {proFormaInvoice.Id} - {proFormaInvoice.IssueDate}");
+
+                continue;
+            }
+
+            var invoice = allInvoice.SingleOrDefault(i => i.FromInvoiceId == proFormaInvoice.Id &&
+                                                          i.Kind == DocumentKind.Vat);
 
             if (invoice == null)
             {
