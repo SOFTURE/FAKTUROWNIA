@@ -186,7 +186,7 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
             var invoiceCount = allInvoice.Count(i => i.FromInvoiceId == proFormaInvoice.Id &&
                                                      i.Kind == DocumentKind.Vat);
     
-            if (invoiceCount != 1)
+            if (invoiceCount > 1)
             {
                 allStatements.Add(statement);
     
