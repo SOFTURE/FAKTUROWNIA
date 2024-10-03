@@ -9,8 +9,11 @@ public interface IFakturowniaApi
      [Get("/invoices.json")]
      Task<ApiResponse<IReadOnlyCollection<InvoiceDetails>>> GetInvoicesAsync(
          [AliasAs("period")] Period period, 
-         [AliasAs("client_id")] int clientId);
+         [AliasAs("client_id")] int clientId,
+         [Query(CollectionFormat.Multi), AliasAs("kinds[]")] DocumentKind[] kinds);
 
      [Get("/invoices/{invoiceId}.json")]
-     Task<ApiResponse<InvoiceDetails>> GetInvoiceAsync(int invoiceId);
+     Task<ApiResponse<InvoiceDetails>> GetInvoiceAsync(
+         int invoiceId,
+         [Query(CollectionFormat.Multi), AliasAs("kinds[]")] DocumentKind[] kinds);
 }
