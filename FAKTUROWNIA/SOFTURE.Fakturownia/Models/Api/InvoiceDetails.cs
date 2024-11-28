@@ -20,7 +20,7 @@ public sealed class InvoiceDetails
 
     [JsonPropertyName("app")] public object? App { get; set; }
 
-    [JsonPropertyName("number")] public string? Number { get; set; }
+    [JsonPropertyName("number")] public string Number { get; set; } = null!;
 
     [JsonPropertyName("place")] public string? Place { get; set; }
 
@@ -104,7 +104,7 @@ public sealed class InvoiceDetails
 
     [JsonPropertyName("client_id")] public int ClientId { get; set; }
 
-    [JsonPropertyName("payment_to")] public string? PaymentTo { get; set; }
+    [JsonPropertyName("payment_to")] public DateTime PaymentTo { get; set; }
 
     [JsonPropertyName("paid")] public string? Paid { get; set; }
 
