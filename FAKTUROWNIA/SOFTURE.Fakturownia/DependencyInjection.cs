@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Net;
+using Microsoft.Extensions.DependencyInjection;
+using Polly;
+using Polly.Extensions.Http;
 using Refit;
 using SOFTURE.Common.HealthCheck;
 using SOFTURE.Fakturownia.Abstractions;
@@ -20,10 +23,16 @@ namespace SOFTURE.Fakturownia
             
             services.AddTransient<GetApiTokenHandler>();
 
+            var retryPolicy = HttpPolicyExtensions
+                .HandleTransientHttpError()
+                .OrResult(msg => msg.StatusCode == HttpStatusCode.TooManyRequests)
+                .WaitAndRetryAsync(5, attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)));
+
             services
                 .AddRefitClient<IFakturowniaApi>()
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri(settings.Url))
-                .AddHttpMessageHandler<GetApiTokenHandler>();
+                .AddHttpMessageHandler<GetApiTokenHandler>()
+                .AddPolicyHandler(retryPolicy);
             
             services.AddScoped<IFakturowniaClient, FakturowniaClient>();    
             

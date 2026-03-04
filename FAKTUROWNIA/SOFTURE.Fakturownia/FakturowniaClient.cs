@@ -20,6 +20,9 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
                 $"Failed to get invoices for client with id: {clientId} - {response.Error.Content}"
             );
 
+        if (response.Content == null)
+            return Result.Failure<MonthlyStatement>($"Empty response for client with id: {clientId}");
+
         var invoices = response.Content;
 
         if (invoices.Count == 0)
@@ -49,14 +52,17 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
             DocumentKind.Proforma,
             DocumentKind.Vat
         ]);
-    
+
         if (!response.IsSuccessStatusCode)
             return Result.Failure<MonthlyStatement>(
                 $"Failed to get invoices for client with id: {clientId} - {response.Error.Content}"
             );
-    
+
+        if (response.Content == null)
+            return Result.Failure<MonthlyStatement>($"Empty response for client with id: {clientId}");
+
         var allInvoice = response.Content;
-    
+
         var invoices = allInvoice
             .Where(i => i.IssueDate.Month == month && i.IssueDate.Year == year)
             .ToList();
@@ -113,8 +119,11 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
                 $"Failed to get invoices for client with id: {clientId} - {response.Error.Content}"
             );
     
+        if (response.Content == null)
+            return Result.Failure<IReadOnlyList<MonthlyStatement>>($"Empty response for client with id: {clientId}");
+
         var allInvoice = response.Content;
-    
+
         var payedInvoices = allInvoice
             .Where(i => i.Kind == DocumentKind.Vat)
             .ToList();
@@ -162,8 +171,11 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi) : IFaktu
                 $"Failed to get invoices for client with id: {clientId} - {response.Error.Content}"
             );
     
+        if (response.Content == null)
+            return Result.Failure<IReadOnlyList<MonthlyStatement>>($"Empty response for client with id: {clientId}");
+
         var allInvoice = response.Content;
-    
+
         if (allInvoice.Count == 0)
             return Result.Failure<IReadOnlyList<MonthlyStatement>>($"Missing invoices for client with id: {clientId}");
     
