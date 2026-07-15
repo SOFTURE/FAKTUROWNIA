@@ -70,7 +70,8 @@ public class FakturowniaClientTests
         var result = await _client.GetCurrentMonthStatement(ClientId);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.IsPaid.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.IsPaid.Should().BeTrue();
         result.Value.ProFormaInvoice.Identifier.Should().Be(501);
         result.Value.Invoice!.Identifier.Should().Be(601);
     }
@@ -83,7 +84,8 @@ public class FakturowniaClientTests
         var result = await _client.GetCurrentMonthStatement(ClientId);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.IsPaid.Should().BeFalse();
+        result.Value.Should().NotBeNull();
+        result.Value!.IsPaid.Should().BeFalse();
         result.Value.ProFormaInvoice.Identifier.Should().Be(501);
     }
 
@@ -98,29 +100,30 @@ public class FakturowniaClientTests
         var result = await _client.GetCurrentMonthStatement(ClientId);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.IsPaid.Should().BeFalse();
+        result.Value.Should().NotBeNull();
+        result.Value!.IsPaid.Should().BeFalse();
     }
 
     [Fact]
-    public async Task GetCurrentMonthStatement_WhenNoProFormaInvoice_ReturnsFailure()
+    public async Task GetCurrentMonthStatement_WhenNoProFormaInvoice_ReturnsSuccessWithNull()
     {
         ApiReturns(InvoiceDetailsBuilder.Vat(id: 601, fromProFormaId: 501));
 
         var result = await _client.GetCurrentMonthStatement(ClientId);
 
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Contain("Missing proforma invoice");
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().BeNull();
     }
 
     [Fact]
-    public async Task GetCurrentMonthStatement_WhenNoInvoices_ReturnsFailure()
+    public async Task GetCurrentMonthStatement_WhenNoInvoices_ReturnsSuccessWithNull()
     {
         ApiReturns();
 
         var result = await _client.GetCurrentMonthStatement(ClientId);
 
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Contain("Missing invoices");
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().BeNull();
     }
 
     [Fact]

@@ -10,7 +10,7 @@ namespace SOFTURE.Fakturownia;
 
 internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi, ILogger<FakturowniaClient> logger) : IFakturowniaClient
 {
-    public async Task<Result<MonthlyStatement>> GetCurrentMonthStatement(int clientId)
+    public async Task<Result<MonthlyStatement?>> GetCurrentMonthStatement(int clientId)
     {
         var response = await fakturowniaApi.GetInvoicesAsync(Period.ThisMonth, clientId, [
             DocumentKind.Proforma,
@@ -18,15 +18,15 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi, ILogger<
         ]);
 
         if (!response.IsSuccessStatusCode)
-            return Result.Failure<MonthlyStatement>($"Failed to get invoices for client with id: {clientId} - {response.Error.Content}");
+            return Result.Failure<MonthlyStatement?>($"Failed to get invoices for client with id: {clientId} - {response.Error.Content}");
 
         if (response.Content == null)
-            return Result.Failure<MonthlyStatement>($"Empty response for client with id: {clientId}");
+            return Result.Failure<MonthlyStatement?>($"Empty response for client with id: {clientId}");
 
         var invoices = response.Content;
 
         if (invoices.Count == 0)
-            return Result.Failure<MonthlyStatement>($"Missing invoices for client with id: {clientId}");
+            return Result.Success<MonthlyStatement?>(null);
 
         var proFormaInvoices = invoices
             .Where(i => i.Kind == DocumentKind.Proforma)
@@ -35,9 +35,9 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi, ILogger<
         switch (proFormaInvoices.Count)
         {
             case 0:
-                return Result.Failure<MonthlyStatement>($"Missing proforma invoice for client with id: {clientId}");
+                return Result.Success<MonthlyStatement?>(null);
             case > 1:
-                return Result.Failure<MonthlyStatement>(AmbiguousProFormaError(clientId, proFormaInvoices));
+                return Result.Failure<MonthlyStatement?>(AmbiguousProFormaError(clientId, proFormaInvoices));
         }
 
         var proFormaInvoice = proFormaInvoices[0];
@@ -49,13 +49,13 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi, ILogger<
         switch (invoicesFromProForma.Count)
         {
             case > 1:
-                return Result.Failure<MonthlyStatement>(AmbiguousInvoiceError(clientId, proFormaInvoice, invoicesFromProForma));
+                return Result.Failure<MonthlyStatement?>(AmbiguousInvoiceError(clientId, proFormaInvoice, invoicesFromProForma));
             case 1:
                 statement.Paid(invoicesFromProForma[0].MapToInvoice());
                 break;
         }
 
-        return Result.Success(statement);
+        return Result.Success<MonthlyStatement?>(statement);
     }
 
     public async Task<Result<MonthlyStatement>> GetMonthlyStatement(int clientId, int month, int year)
