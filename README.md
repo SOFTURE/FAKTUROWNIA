@@ -4,7 +4,7 @@ A .NET client library for the [Fakturownia](https://fakturownia.pl) invoicing AP
 
 [![NuGet](https://img.shields.io/nuget/v/SOFTURE.Fakturownia)](https://www.nuget.org/packages/SOFTURE.Fakturownia)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![.NET](https://img.shields.io/badge/.NET-6.0%20%7C%208.0-blue)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%2010.0-blue)](https://dotnet.microsoft.com/)
 
 ---
 
@@ -22,6 +22,7 @@ A .NET client library for the [Fakturownia](https://fakturownia.pl) invoicing AP
 - [Health Checks](#health-checks)
 - [Architecture](#architecture)
 - [Contributing](#contributing)
+- [Releasing](#releasing)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
 
@@ -36,14 +37,14 @@ A .NET client library for the [Fakturownia](https://fakturownia.pl) invoicing AP
 - Monthly statement aggregation — pairs proforma and VAT invoices with payment status tracking
 - Health check integration for monitoring API availability
 - Supports 14 document types (VAT, Proforma, Bill, Receipt, and more)
-- Multi-target framework support: `.NET 6.0` and `.NET 8.0`
+- Multi-target framework support: `.NET 8.0` and `.NET 10.0`
 - Clean dependency injection registration via a single extension method
 
 ---
 
 ## Prerequisites
 
-- [.NET 6.0 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) or [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - A [Fakturownia](https://fakturownia.pl) account with an API token
 
 ---
@@ -405,6 +406,57 @@ cd FAKTUROWNIA/SOFTURE.Fakturownia.Playground
 # Update appsettings.json with your API credentials
 dotnet run
 ```
+
+---
+
+## Releasing
+
+The single workflow [`release.yml`](.github/workflows/release.yml) releases the package to nuget.org and creates
+a GitHub Release with the `.nupkg` attached.
+
+### Release
+
+A release starts from a tag `fakturownia@<version>` (e.g. `fakturownia@0.1.0`) created by hand; the workflow
+never creates tags. In GitHub: Releases → **Draft a new release** → **Choose a tag** → type
+`fakturownia@0.1.0` → **Create new tag on publish**, target `master` → **Publish release**. The new tag starts
+the workflow, which publishes the package and attaches the `.nupkg` to that release. Pushing the tag from a
+terminal works the same way (the workflow then creates the GitHub Release itself):
+
+```bash
+git tag -a fakturownia@0.1.0 -m fakturownia@0.1.0
+git push origin fakturownia@0.1.0
+```
+
+The tag must point at a commit on `master`. A version with a suffix (`0.2.0-beta.1`) is published as a
+prerelease. To retry a failed release, use **Run workflow** with the tag selected as the ref.
+
+### Dry run
+
+Actions → **release** → **Run workflow** on a branch: build, tests, vulnerability gate and pack, nothing
+published. A pull request that changes `release.yml` or a `.csproj` runs the same checks.
+
+### What a release checks
+
+1. The commit is on `master`.
+2. The solution builds for `net8.0` and `net10.0`, and the tests pass.
+3. `dotnet list package --vulnerable --include-transitive` finds nothing on any target framework.
+4. The package contains `lib/net8.0` and `lib/net10.0`.
+
+The package depends on SOFTURE.Common.HealthCheck (SOFTURE/API) and SOFTURE.Settings (SOFTURE/COMMON):
+release those first and wait until nuget.org lists them.
+
+### Trusted publishing (one-time setup)
+
+The workflow publishes through [nuget.org trusted publishing](https://learn.microsoft.com/nuget/nuget-org/trusted-publishing):
+GitHub's OIDC token is exchanged for an API key that lives one hour. No long-lived API key is stored.
+
+1. nuget.org → your user → **Trusted Publishing** → add a policy: Package Owner `SOFTURE`, Repository
+   Owner `SOFTURE`, Repository `FAKTUROWNIA`, Workflow File `release.yml`, Environment empty.
+2. The organization secret `NUGET_USER` holds the nuget.org **profile name** (not the e-mail) of the user
+   who created the policy.
+
+Keep the workflow file name: the policy is bound to `release.yml`. The old `NUGET_API_KEY` secret is no
+longer used.
 
 ---
 

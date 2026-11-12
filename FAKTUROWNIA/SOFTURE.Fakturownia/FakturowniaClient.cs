@@ -1,5 +1,6 @@
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
+using Refit;
 using SOFTURE.Fakturownia.Abstractions;
 using SOFTURE.Fakturownia.Mappers;
 using SOFTURE.Fakturownia.Models.Api;
@@ -18,7 +19,7 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi, ILogger<
         ]);
 
         if (!response.IsSuccessStatusCode)
-            return Result.Failure<MonthlyStatement?>($"Failed to get invoices for client with id: {clientId} - {response.Error.Content}");
+            return Result.Failure<MonthlyStatement?>($"Failed to get invoices for client with id: {clientId} - {DescribeError(response)}");
 
         if (response.Content == null)
             return Result.Failure<MonthlyStatement?>($"Empty response for client with id: {clientId}");
@@ -66,7 +67,7 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi, ILogger<
         ]);
 
         if (!response.IsSuccessStatusCode)
-            return Result.Failure<MonthlyStatement>($"Failed to get invoices for client with id: {clientId} - {response.Error.Content}");
+            return Result.Failure<MonthlyStatement>($"Failed to get invoices for client with id: {clientId} - {DescribeError(response)}");
 
         if (response.Content == null)
             return Result.Failure<MonthlyStatement>($"Empty response for client with id: {clientId}");
@@ -115,7 +116,7 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi, ILogger<
         var response = await fakturowniaApi.GetInvoiceAsync(invoiceId, [kind]);
 
         if (!response.IsSuccessStatusCode)
-            return Result.Failure<Invoice>($"Failed to get invoice with id: {invoiceId} - {response.Error.Content}");
+            return Result.Failure<Invoice>($"Failed to get invoice with id: {invoiceId} - {DescribeError(response)}");
 
         if (response.Content == null)
             return Result.Failure<Invoice>($"Missing {kind} invoice with id: {invoiceId}");
@@ -133,7 +134,7 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi, ILogger<
         ]);
 
         if (!response.IsSuccessStatusCode)
-            return Result.Failure<IReadOnlyList<MonthlyStatement>>($"Failed to get invoices for client with id: {clientId} - {response.Error.Content}");
+            return Result.Failure<IReadOnlyList<MonthlyStatement>>($"Failed to get invoices for client with id: {clientId} - {DescribeError(response)}");
 
         if (response.Content == null)
             return Result.Failure<IReadOnlyList<MonthlyStatement>>($"Empty response for client with id: {clientId}");
@@ -188,7 +189,7 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi, ILogger<
 
         if (!response.IsSuccessStatusCode)
             return Result.Failure<IReadOnlyList<MonthlyStatement>>(
-                $"Failed to get invoices for client with id: {clientId} - {response.Error.Content}"
+                $"Failed to get invoices for client with id: {clientId} - {DescribeError(response)}"
             );
 
         if (response.Content == null)
@@ -240,6 +241,21 @@ internal sealed class FakturowniaClient(IFakturowniaApi fakturowniaApi, ILogger<
         }
 
         return Result.Success<IReadOnlyList<MonthlyStatement>>(allStatements);
+    }
+
+    private static string DescribeError(IApiResponse response)
+    {
+        if (response.HasResponseError(out var responseError))
+        {
+            return responseError.Content ?? $"HTTP {(int)responseError.StatusCode} without body";
+        }
+
+        if (response.HasRequestError(out var requestError))
+        {
+            return $"request failed before response: {requestError.InnerException?.Message ?? requestError.Message}";
+        }
+
+        return response.StatusCode is { } statusCode ? $"HTTP {(int)statusCode}" : "no response";
     }
 
     private static List<InvoiceDetails> GetInvoicesFromProForma(IEnumerable<InvoiceDetails> invoices, int proFormaInvoiceId)

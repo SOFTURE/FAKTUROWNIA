@@ -29,7 +29,7 @@ namespace SOFTURE.Fakturownia
                 .WaitAndRetryAsync(5, attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)));
 
             services
-                .AddRefitClient<IFakturowniaApi>()
+                .AddRefitGeneratedClient<IFakturowniaApi>()
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri(settings.Url))
                 .AddHttpMessageHandler<GetApiTokenHandler>()
                 .AddPolicyHandler(retryPolicy);

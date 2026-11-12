@@ -25,7 +25,10 @@ internal static class InvoiceDetailsBuilder
         this IReadOnlyCollection<InvoiceDetails> invoices)
     {
         return new ApiResponse<IReadOnlyCollection<InvoiceDetails>>(
-            new HttpResponseMessage(HttpStatusCode.OK),
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                RequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://softure.fakturownia.invalid/invoices.json")
+            },
             invoices,
             new RefitSettings()
         );
