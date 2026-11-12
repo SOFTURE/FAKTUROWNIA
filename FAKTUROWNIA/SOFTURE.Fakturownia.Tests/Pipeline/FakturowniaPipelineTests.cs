@@ -202,6 +202,46 @@ public sealed class FakturowniaPipelineTests : IDisposable
         _pipeline.Handler.Requests.Should().AllSatisfy(request => QueryOf(request)["api_token"].Should().Be(FakturowniaPipeline.ApiKey));
     }
 
+    [Fact]
+    public async Task GetInvoice_WhenFakturowniaRateLimits_RetriesAndReturnsInvoice()
+    {
+        _pipeline.Handler.RespondWith(HttpStatusCode.TooManyRequests, "");
+        _pipeline.Handler.RespondWith(HttpStatusCode.OK, SingleInvoiceJson);
+
+        var result = await _pipeline.Client.GetInvoice(601, DocumentKind.Vat);
+
+        result.IsSuccess.Should().BeTrue();
+        _pipeline.Handler.Requests.Should().HaveCount(2);
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.BadRequest)]
+    [InlineData(HttpStatusCode.Unauthorized)]
+    [InlineData(HttpStatusCode.NotFound)]
+    public async Task GetInvoice_WhenFakturowniaRejectsRequest_DoesNotRetry(HttpStatusCode statusCode)
+    {
+        _pipeline.Handler.RespondWith(statusCode, """{"code":"error"}""");
+
+        var result = await _pipeline.Client.GetInvoice(601, DocumentKind.Vat);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be("""Failed to get invoice with id: 601 - {"code":"error"}""");
+        _pipeline.Handler.Requests.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task GetInvoice_WhenServerErrorsTwice_RetriesUntilSuccess()
+    {
+        _pipeline.Handler.RespondWith(HttpStatusCode.InternalServerError, "");
+        _pipeline.Handler.RespondWith(HttpStatusCode.BadGateway, "");
+        _pipeline.Handler.RespondWith(HttpStatusCode.OK, SingleInvoiceJson);
+
+        var result = await _pipeline.Client.GetInvoice(601, DocumentKind.Vat);
+
+        result.IsSuccess.Should().BeTrue();
+        _pipeline.Handler.Requests.Should().HaveCount(3);
+    }
+
 #if NET10_0_OR_GREATER
     [Fact]
     public async Task GetInvoice_WhenFakturowniaReturnsDuplicateJsonKeys_ReturnsMissingInvoiceFailureInsteadOfThrowing()

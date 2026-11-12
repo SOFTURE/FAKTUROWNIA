@@ -31,7 +31,7 @@ A .NET client library for the [Fakturownia](https://fakturownia.pl) invoicing AP
 ## Features
 
 - Strongly-typed client for the Fakturownia REST API
-- Built-in retry policy with exponential backoff (Polly) — handles transient errors and `429 TooManyRequests`
+- Built-in retry with exponential backoff (`Microsoft.Extensions.Http.Resilience`) — handles transient errors and `429 TooManyRequests`
 - Automatic API key injection via custom `DelegatingHandler`
 - Functional error handling with `Result<T>` ([CSharpFunctionalExtensions](https://github.com/vkhorikov/CSharpFunctionalExtensions))
 - Monthly statement aggregation — pairs proforma and VAT invoices with payment status tracking
@@ -149,7 +149,7 @@ This registers:
 | `IFakturowniaApi`         | —        | Refit HTTP client with automatic API key injection              |
 | `GetApiTokenHandler`      | —        | `DelegatingHandler` that appends the API token to each request  |
 | `FakturowniaHealthCheck`  | —        | Health check for monitoring API availability                    |
-| Polly retry policy         | —        | 5 retries with exponential backoff for transient errors         |
+| Resilience retry handler   | —        | 5 retries with exponential backoff for transient errors         |
 
 ---
 
@@ -324,13 +324,13 @@ else
 
 ### Retry Policy
 
-The library includes a built-in Polly retry policy:
+The library registers a retry handler from `Microsoft.Extensions.Http.Resilience` (Polly v8):
 
 - **Retries:** 5 attempts
-- **Backoff:** Exponential — `2^attempt` seconds (2s, 4s, 8s, 16s, 32s)
-- **Handles:** Transient HTTP errors and `429 TooManyRequests`
+- **Backoff:** Exponential, no jitter — 2s, 4s, 8s, 16s, 32s (the `Retry-After` header is not used)
+- **Handles:** `HttpRequestException`, `408`, `429` and `5xx` responses; other `4xx` responses are not retried
 
-No additional configuration is needed — the retry policy is registered automatically via `AddFakturownia<TSettings>()`.
+No additional configuration is needed — the retry handler is registered automatically via `AddFakturownia<TSettings>()`.
 
 ---
 
@@ -374,7 +374,7 @@ SOFTURE.Fakturownia/
 **Key design decisions:**
 
 - **[Refit](https://github.com/reactiveui/refit)** — declarative HTTP client generation from the `IFakturowniaApi` interface
-- **[Polly](https://github.com/App-vNext/Polly)** — resilience and retry policies integrated via `Microsoft.Extensions.Http.Polly`
+- **[Polly](https://github.com/App-vNext/Polly)** — retry strategy integrated via `Microsoft.Extensions.Http.Resilience`
 - **Mapper pattern** — separates the API response model (`InvoiceDetails`, 100+ fields) from the clean domain model (`Invoice`, 5 fields)
 - **Value Objects** — `Invoice` extends `ValueObject` for structural equality
 - **DelegatingHandler** — `GetApiTokenHandler` injects the `api_token` query parameter transparently
