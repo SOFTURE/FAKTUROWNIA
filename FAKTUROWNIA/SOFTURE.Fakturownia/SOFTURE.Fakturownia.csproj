@@ -11,8 +11,8 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.15" />
         <PackageReference Include="Refit" Version="16.4.0" />
         <PackageReference Include="Refit.HttpClientFactory" Version="16.4.0" />
-        <PackageReference Include="SOFTURE.Common.HealthCheck" Version="1.7.0" />
-        <PackageReference Include="SOFTURE.Settings" Version="0.5.0" />
+        <PackageReference Include="SOFTURE.Common.HealthCheck" Version="2.0.0" />
+        <PackageReference Include="SOFTURE.Settings" Version="2.0.0" />
     </ItemGroup>
 
     <ItemGroup>
